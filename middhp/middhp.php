@@ -9,5 +9,6 @@ include_once("./middhp/include/messages.php");
 include_once("./middhp/include/renderer.php");
 include_once("./middhp/include/route.php");
 include_once("./middhp/p2regexp.php");
+include_once("./middhp/include/db/model.php");
 
 ?>
