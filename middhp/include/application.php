@@ -11,7 +11,7 @@ class Application{
     public function get($route, $func){
         $this->routes[] = array(
             "method" => "GET",
-            "route" => $route,
+            "route" => new Route($route),
             "func" => $func
         );
     }
@@ -19,7 +19,7 @@ class Application{
     public function post($route, $func){
         $this->routes[] = array(
             "method" => "POST",
-            "route" => $route,
+            "route" => new Route($route),
             "func" => $func
         );
     }
@@ -29,17 +29,18 @@ class Application{
         $res = new Response();
         
         $founded = false;
+        
         foreach($this->routes as $route){
-            if($route['method'] == $_SERVER['REQUEST_METHOD'] && $route['route'] == $_SERVER['REQUEST_URI']){
+            $params = $route['route']->match($_SERVER['REQUEST_URI']);
+            if($route['method'] == $_SERVER['REQUEST_METHOD'] && is_array($params)){
                 $founded = true;
+                $req->params = $params;
                 $route['func']($req, $res);
                 break;
             }
         }
         if(!$founded)
             echo "Not Found: {$_SERVER['REQUEST_URI']}";
-            
-        $this->loadingtime -= -microtime(); 
     }
 
 }

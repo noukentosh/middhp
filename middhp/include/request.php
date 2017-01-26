@@ -7,6 +7,7 @@ class Request{
     public $method;
     public $originalUrl;
     public $query;
+    public $params;
     
     public function __construct(){
         $this->cookies = $_COOKIE;

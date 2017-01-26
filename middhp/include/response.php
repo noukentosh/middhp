@@ -12,15 +12,19 @@ class Response{
     }
     
     function append($field, $variables){
-        //TODO add field to header
+        if(is_array($variables))
+            header("{$field}: " . implode(', ', $variables));
+        else if(is_string($variables))
+            header("{$field}: $variables");
     }
     
     function cookie($name, $value, $options = array()){
-        //TODO set cookie
+        //TODO $options
+        setcookie($name, $value);
     }
     
     function clearCookie($name){
-        //TODO clear cookie
+        unset($_COOKIE[$name]);
     }
     
     function end(){
@@ -30,11 +34,11 @@ class Response{
     }
     
     function location($location){
-        //TODO change location
+        header("Location: {$location}");
     }
     
     function redirect($location, $status = 302){
-        //TODO change location with status
+        header("Location: {$location}", true, $status);
     }
     
     function render($path, $data = array(), $callback = NULL){
@@ -42,11 +46,11 @@ class Response{
     }
     
     function send($data){
-        //TODO append $data to $body
+        $this->body[] = $data;
     }
     
     function type($type){
-        //TODO set response content type
+        header('Content-Type: {$type}');
     }
 }
 
