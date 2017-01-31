@@ -6,7 +6,6 @@ class Route{
     private $params = array();
     
     public function __construct($path){
-        $this->func = $func;
         $this->path_tpl = $path;
         $this->path_regex = PathToRegexp::convert($path, $this->params);
     }
