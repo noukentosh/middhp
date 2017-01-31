@@ -22,13 +22,17 @@ class Model{
         if($this->uid == NULL){
             $this->db->query("INSERT INTO `tbl_{$this->__model_name}` (`id`) VALUES (NULL)");
             $this->uid = $this->db->getInsertId();
-            foreach ($this->fields as $name => $value) {
+            $reflection = new ReflectionObject($this);
+            $properties = $reflection->getProperties(ReflectionProperty::IS_PUBLIC);
+            foreach ($properties as $property) {
+                $name = $property->getName();
+                $value = $property->getValue($this);
                 $this->db->query("INSERT INTO `tbl_{$this->__model_name}_nodes` (`id`, `uid`, `parent`, `name`, `value`) VALUES (NULL, '{$this->uid}', '0', '{$name}', '{$value}')");
             }
         }
     }
     
-    public function find($filters = array()){
+    public function find($filters = array(), $limit = NULL){
         $results = array();
         
         $sql = "SELECT `uid` FROM `tbl_{$this->__model_name}_nodes` WHERE ";
@@ -39,7 +43,10 @@ class Model{
         
         $sql = substr($sql, 0, strlen($sql) - 5);
         
-        $result = $this->db->query($sql);
+        if($limit != NULL)
+            $result = $this->db->query($sql . " LIMIT {$limit}");
+        else
+            $result = $this->db->query($sql);
         
         $uids = array();
         while ($row = $result->fetch_assoc()) {
@@ -58,32 +65,9 @@ class Model{
     }
     
     public function findOne($filters = array()){
-        $results = array();
+        $results = $this->find($filters, 1);
         
-        $sql = "SELECT `uid` FROM `tbl_{$this->__model_name}_nodes` WHERE ";
-        
-        foreach($filters as $key => $filter){
-            $sql .= "`name`='{$key}' AND `value`='{$filter}' AND ";
-        }
-        
-        $sql = substr($sql, 0, strlen($sql) - 5);
-        
-        $result = $this->db->query($sql . " LIMIT 1");
-        
-        $uids = array();
-        while ($row = $result->fetch_assoc()) {
-            $uids[] = $row['uid'];
-        }
-        
-        $sql = "SELECT `uid`, `name`, `value` FROM `tbl_{$this->__model_name}_nodes` WHERE `uid` IN ('" . implode("', '", $uids) . "') AND `name` IN ('" . implode("', '", array_keys($this->fields)) . "')";
-        
-        $result = $this->db->query($sql);
-        
-        while ($row = $result->fetch_assoc()) {
-            $results[0][$row['name']] = $row['value'];
-        }
-        
-        return $results[0];
+        return array_shift($results);
     }
 }
 
