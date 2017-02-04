@@ -24,11 +24,14 @@ class Model{
             $this->uid = $this->db->getInsertId();
             $reflection = new ReflectionObject($this);
             $properties = $reflection->getProperties(ReflectionProperty::IS_PUBLIC);
+            $sql = "INSERT INTO `tbl_{$this->__model_name}_nodes` (`id`, `uid`, `parent`, `name`, `value`) VALUES ";
             foreach ($properties as $property) {
                 $name = $property->getName();
                 $value = $property->getValue($this);
-                $this->db->query("INSERT INTO `tbl_{$this->__model_name}_nodes` (`id`, `uid`, `parent`, `name`, `value`) VALUES (NULL, '{$this->uid}', '0', '{$name}', '{$value}')");
+                $sql .= "(NULL, '{$this->uid}', '0', '{$name}', '{$value}'), ";
             }
+            $sql = substr($sql, 0, strlen($sql) - 2);
+            $this->db->query($sql);
         }
     }
     
